@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Controle de Troca de Óleo{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topo">
+    <a class="marca" href="{{ url_for('main.index') }}">🛢️ Controle de Troca de Óleo</a>
+    <nav>
+      {% set ep = request.endpoint or '' %}
+      <a href="{{ url_for('main.index') }}" class="{{ 'ativo' if ep.startswith('main.') }}">Painel</a>
+      <a href="{{ url_for('equipamentos.lista') }}" class="{{ 'ativo' if ep.startswith('equipamentos.') }}">Equipamentos</a>
+      <a href="{{ url_for('mecanicos.lista') }}" class="{{ 'ativo' if ep.startswith('mecanicos.') }}">Mecânicos</a>
+      <a href="{{ url_for('trocas.lista') }}" class="{{ 'ativo' if ep.startswith('trocas.') }}">Trocas</a>
+      <a href="{{ url_for('trocas.nova') }}" class="botao">+ Registrar troca</a>
+    </nav>
+  </header>
+  <main>
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for categoria, mensagem in mensagens %}
+        <div class="alerta alerta-{{ categoria }}">{{ mensagem }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block conteudo %}{% endblock %}
+  </main>
+</body>
+</html>

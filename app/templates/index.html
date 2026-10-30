@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import selo, restante %}
+{% block conteudo %}
+<h1>Painel</h1>
+
+<section class="cartoes">
+  <div class="cartao"><span>Equipamentos ativos</span><strong>{{ resumo.equipamentos }}</strong></div>
+  <div class="cartao cartao-vencida"><span>Trocas vencidas</span><strong>{{ resumo.vencidas }}</strong></div>
+  <div class="cartao cartao-atencao"><span>Trocas próximas</span><strong>{{ resumo.proximas }}</strong></div>
+  <div class="cartao"><span>Sem registro de troca</span><strong>{{ resumo.sem_registro }}</strong></div>
+  <div class="cartao"><span>Mecânicos ativos</span><strong>{{ resumo.mecanicos }}</strong></div>
+</section>
+
+<h2>Situação da frota</h2>
+{% if itens %}
+<div class="tabela">
+<table>
+  <thead>
+    <tr><th>Situação</th><th>Código</th><th>Descrição</th><th>Tipo</th><th class="num">Leitura atual</th><th class="num">Próxima troca</th><th>Falta</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for i in itens %}
+    {% set eq = i.equipamento %}
+    <tr>
+      <td>{{ selo(i.status) }}</td>
+      <td><a href="{{ url_for('equipamentos.detalhe', equipamento_id=eq.id) }}">{{ eq.codigo }}</a></td>
+      <td>{{ eq.descricao }}</td>
+      <td>{{ eq.tipo }}</td>
+      <td class="num">{{ eq.leitura_atual|numero }} {{ eq.unidade_medida }}</td>
+      <td class="num">
+        {% if i.ultima %}{{ i.ultima.proxima_leitura|numero }} {{ eq.unidade_medida }}
+          {% if i.ultima.proxima_data %}<br><small>até {{ i.ultima.proxima_data|data_br }}</small>{% endif %}
+        {% else %}—{% endif %}
+      </td>
+      <td>{{ restante(i, eq.unidade_medida) }}</td>
+      <td><a class="botao botao-pequeno" href="{{ url_for('trocas.nova', equipamento_id=eq.id) }}">Registrar troca</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="vazio">Nenhum equipamento cadastrado. <a href="{{ url_for('equipamentos.novo') }}">Cadastre o primeiro equipamento</a>.</p>
+{% endif %}
+
+<h2>Últimas trocas</h2>
+{% if recentes %}
+<div class="tabela">
+<table>
+  <thead><tr><th>Data</th><th>Equipamento</th><th class="num">Leitura</th><th>Óleo</th><th class="num">Litros</th><th>Mecânico</th></tr></thead>
+  <tbody>
+  {% for t in recentes %}
+    <tr>
+      <td>{{ t.data|data_br }}</td>
+      <td><a href="{{ url_for('equipamentos.detalhe', equipamento_id=t.equipamento_id) }}">{{ t.codigo }}</a> – {{ t.descricao }}</td>
+      <td class="num">{{ t.leitura|numero }} {{ t.unidade_medida }}</td>
+      <td>{{ t.tipo_oleo }}</td>
+      <td class="num">{{ t.quantidade_litros|numero(1) }}</td>
+      <td>{{ t.mecanico }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="vazio">Nenhuma troca registrada ainda.</p>
+{% endif %}
+{% endblock %}

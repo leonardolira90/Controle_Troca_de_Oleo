@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import selo, restante as falta, filtros %}
+{% block titulo %}{{ eq.codigo }} – {{ super() }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>{{ eq.codigo }} – {{ eq.descricao }} {{ selo(status) }}</h1>
+  <div class="acoes">
+    <a class="botao" href="{{ url_for('trocas.nova', equipamento_id=eq.id) }}">Registrar troca</a>
+    <a class="botao botao-secundario" href="{{ url_for('equipamentos.editar', equipamento_id=eq.id) }}">Editar</a>
+    <form method="post" action="{{ url_for('equipamentos.excluir', equipamento_id=eq.id) }}" onsubmit="return confirm('Excluir este equipamento?')">
+      <button class="botao-perigo" type="submit">Excluir</button>
+    </form>
+  </div>
+</div>
+{% if not eq.ativo %}<div class="alerta alerta-erro">Equipamento inativo — não aparece no painel nem no registro de trocas.</div>{% endif %}
+
+<section class="cartoes">
+  <div class="cartao"><span>Leitura atual</span><strong>{{ eq.leitura_atual|numero }} {{ eq.unidade_medida }}</strong></div>
+  <div class="cartao"><span>Próxima troca</span><strong>{% if ultima %}{{ ultima.proxima_leitura|numero }} {{ eq.unidade_medida }}{% else %}—{% endif %}</strong>
+    {% if ultima and ultima.proxima_data %}<small>ou até {{ ultima.proxima_data|data_br }}</small>{% endif %}</div>
+  <div class="cartao"><span>Falta</span><strong>{{ falta({'restante': restante, 'dias_restantes': dias_restantes}, eq.unidade_medida) }}</strong></div>
+  <div class="cartao"><span>Última troca</span><strong>{{ ultima.data|data_br if ultima else '—' }}</strong></div>
+</section>
+
+<div class="colunas">
+  <dl class="ficha">
+    <dt>Tipo</dt><dd>{{ eq.tipo }}</dd>
+    <dt>Marca / Modelo</dt><dd>{{ eq.marca or '—' }} / {{ eq.modelo or '—' }}</dd>
+    <dt>Ano</dt><dd>{{ eq.ano or '—' }}</dd>
+    <dt>Placa / Série</dt><dd>{{ eq.placa_serie or '—' }}</dd>
+    <dt>Medição</dt><dd>{{ unidades[eq.unidade_medida] }}</dd>
+    <dt>Intervalo de troca</dt><dd>{{ eq.intervalo_troca|numero }} {{ eq.unidade_medida }}{% if eq.intervalo_dias %} ou {{ eq.intervalo_dias }} dias{% endif %}</dd>
+    <dt>Óleo recomendado</dt><dd>{{ eq.oleo_recomendado or '—' }}</dd>
+    <dt>Capacidade</dt><dd>{{ (eq.capacidade_litros|numero(1)) ~ ' L' if eq.capacidade_litros else '—' }}</dd>
+    {% if eq.observacoes %}<dt>Observações</dt><dd>{{ eq.observacoes }}</dd>{% endif %}
+  </dl>
+
+  <form class="caixa" method="post" action="{{ url_for('equipamentos.atualizar_leitura', equipamento_id=eq.id) }}">
+    <h3>Atualizar {{ 'quilometragem' if eq.unidade_medida == 'km' else 'horímetro' }}</h3>
+    <p class="dica">Informe a leitura atual para acompanhar quanto falta para a próxima troca.</p>
+    <input name="leitura_atual" type="number" step="0.1" min="{{ eq.leitura_atual }}" value="{{ eq.leitura_atual }}" required>
+    <button type="submit">Atualizar leitura</button>
+  </form>
+</div>
+
+<h2>Histórico de trocas</h2>
+{% if historico %}
+<div class="tabela">
+<table>
+  <thead><tr><th>Data</th><th class="num">Leitura</th><th>Óleo</th><th class="num">Litros</th><th>Filtros trocados</th><th>Mecânico</th><th class="num">Próxima</th><th>Observações</th><th></th></tr></thead>
+  <tbody>
+  {% for t in historico %}
+    <tr>
+      <td>{{ t.data|data_br }}</td>
+      <td class="num">{{ t.leitura|numero }} {{ eq.unidade_medida }}</td>
+      <td>{{ t.tipo_oleo }}</td>
+      <td class="num">{{ t.quantidade_litros|numero(1) }}</td>
+      <td>{{ filtros(t) }}</td>
+      <td>{{ t.mecanico }}</td>
+      <td class="num">{{ t.proxima_leitura|numero }} {{ eq.unidade_medida }}{% if t.proxima_data %}<br><small>{{ t.proxima_data|data_br }}</small>{% endif %}</td>
+      <td>{{ t.observacoes or '' }}</td>
+      <td>
+        <form method="post" action="{{ url_for('trocas.excluir', troca_id=t.id) }}" onsubmit="return confirm('Excluir este registro de troca?')">
+          <input type="hidden" name="voltar" value="{{ url_for('equipamentos.detalhe', equipamento_id=eq.id) }}">
+          <button class="botao-link" type="submit">Excluir</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="vazio">Nenhuma troca registrada para este equipamento.</p>
+{% endif %}
+{% endblock %}

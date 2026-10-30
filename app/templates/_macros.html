@@ -1,0 +1,31 @@
+{% macro selo(status) -%}
+  {%- set classes = {'Em dia': 'ok', 'Próxima': 'atencao', 'Vencida': 'vencida', 'Sem registro': 'neutro'} -%}
+  <span class="selo selo-{{ classes[status] }}">{{ status }}</span>
+{%- endmacro %}
+
+{% macro restante(item, unidade) -%}
+  {%- if item.restante is none -%}
+    —
+  {%- else -%}
+    {%- if item.restante <= 0 -%}
+      <strong class="txt-vencida">{{ item.restante|abs|numero }} {{ unidade }} atrasada</strong>
+    {%- else -%}
+      {{ item.restante|numero }} {{ unidade }}
+    {%- endif -%}
+    {%- if item.dias_restantes is not none -%}
+      <br><small class="{{ 'txt-vencida' if item.dias_restantes <= 0 }}">
+        {%- if item.dias_restantes < 0 -%}{{ -item.dias_restantes }} dia(s) atrasada
+        {%- elif item.dias_restantes == 0 -%}vence hoje
+        {%- else -%}{{ item.dias_restantes }} dia(s){%- endif -%}
+      </small>
+    {%- endif -%}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro filtros(t) -%}
+  {%- set lista = [] -%}
+  {%- if t.filtro_oleo %}{% set _ = lista.append('Óleo') %}{% endif -%}
+  {%- if t.filtro_ar %}{% set _ = lista.append('Ar') %}{% endif -%}
+  {%- if t.filtro_combustivel %}{% set _ = lista.append('Combustível') %}{% endif -%}
+  {{ lista|join(', ') if lista else '—' }}
+{%- endmacro %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import filtros as filtros_trocados %}
+{% block titulo %}Trocas – {{ super() }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>Trocas de óleo</h1>
+  <a class="botao" href="{{ url_for('trocas.nova') }}">+ Registrar troca</a>
+</div>
+
+<form class="filtros" method="get">
+  <select name="equipamento_id">
+    <option value="">Todos os equipamentos</option>
+    {% for e in equipamentos %}<option value="{{ e.id }}" {{ 'selected' if e.id|string == filtros.equipamento_id }}>{{ e.codigo }} – {{ e.descricao }}</option>{% endfor %}
+  </select>
+  <select name="mecanico_id">
+    <option value="">Todos os mecânicos</option>
+    {% for m in mecanicos %}<option value="{{ m.id }}" {{ 'selected' if m.id|string == filtros.mecanico_id }}>{{ m.nome }}</option>{% endfor %}
+  </select>
+  <label>De <input type="date" name="inicio" value="{{ filtros.inicio }}"></label>
+  <label>Até <input type="date" name="fim" value="{{ filtros.fim }}"></label>
+  <button type="submit">Filtrar</button>
+  <a href="{{ url_for('trocas.lista') }}">Limpar</a>
+</form>
+
+<p class="resumo">{{ trocas|length }} troca(s) — {{ total_litros|numero(1) }} litros de óleo utilizados.</p>
+
+{% if trocas %}
+<div class="tabela">
+<table>
+  <thead><tr><th>Data</th><th>Equipamento</th><th class="num">Leitura</th><th>Óleo</th><th class="num">Litros</th><th>Filtros trocados</th><th>Mecânico</th><th class="num">Próxima</th><th></th></tr></thead>
+  <tbody>
+  {% for t in trocas %}
+    <tr>
+      <td>{{ t.data|data_br }}</td>
+      <td><a href="{{ url_for('equipamentos.detalhe', equipamento_id=t.equipamento_id) }}">{{ t.codigo }}</a> – {{ t.descricao }}</td>
+      <td class="num">{{ t.leitura|numero }} {{ t.unidade_medida }}</td>
+      <td>{{ t.tipo_oleo }}</td>
+      <td class="num">{{ t.quantidade_litros|numero(1) }}</td>
+      <td>{{ filtros_trocados(t) }}</td>
+      <td>{{ t.mecanico }}</td>
+      <td class="num">{{ t.proxima_leitura|numero }} {{ t.unidade_medida }}{% if t.proxima_data %}<br><small>{{ t.proxima_data|data_br }}</small>{% endif %}</td>
+      <td>
+        <form method="post" action="{{ url_for('trocas.excluir', troca_id=t.id) }}" onsubmit="return confirm('Excluir este registro de troca?')">
+          <button class="botao-link" type="submit">Excluir</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="vazio">Nenhuma troca encontrada.</p>
+{% endif %}
+{% endblock %}

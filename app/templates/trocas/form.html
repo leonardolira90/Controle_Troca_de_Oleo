@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block titulo %}Registrar troca – {{ super() }}{% endblock %}
+{% block conteudo %}
+<h1>Registrar troca de óleo</h1>
+
+{% if not equipamentos or not mecanicos %}
+  <div class="alerta alerta-erro">
+    Para registrar uma troca é preciso ter ao menos um
+    {% if not equipamentos %}<a href="{{ url_for('equipamentos.novo') }}">equipamento ativo</a>{% endif %}
+    {% if not equipamentos and not mecanicos %} e um {% endif %}
+    {% if not mecanicos %}<a href="{{ url_for('mecanicos.novo') }}">mecânico ativo</a>{% endif %}
+    cadastrado.
+  </div>
+{% endif %}
+
+<form method="post" class="formulario">
+  <div class="grade">
+    <label class="largo">Equipamento *
+      <select name="equipamento_id" id="equipamento" required>
+        <option value="">Selecione…</option>
+        {% for e in equipamentos %}
+          <option value="{{ e.id }}" data-unidade="{{ e.unidade_medida }}" data-leitura="{{ e.leitura_atual }}"
+                  data-oleo="{{ e.oleo_recomendado or '' }}" data-capacidade="{{ e.capacidade_litros or '' }}"
+                  {{ 'selected' if e.id|string == t.equipamento_id|string }}>{{ e.codigo }} – {{ e.descricao }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="largo">Mecânico responsável *
+      <select name="mecanico_id" required>
+        <option value="">Selecione…</option>
+        {% for m in mecanicos %}
+          <option value="{{ m.id }}" {{ 'selected' if m.id|string == t.mecanico_id|string }}>{{ m.nome }} ({{ m.matricula }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Data da troca *<input type="date" name="data" value="{{ t.data or '' }}" required></label>
+    <label><span>Leitura no momento da troca (<span id="unidade">km/h</span>) *</span>
+      <input type="number" step="0.1" min="0" name="leitura" id="leitura" value="{{ t.leitura or '' }}" required>
+    </label>
+    <label>Tipo de óleo *<input name="tipo_oleo" id="tipo_oleo" value="{{ t.tipo_oleo or '' }}" required placeholder="Ex.: 15W40"></label>
+    <label>Quantidade (litros) *<input type="number" step="0.1" min="0" name="quantidade_litros" id="quantidade" value="{{ t.quantidade_litros or '' }}" required></label>
+  </div>
+
+  <fieldset>
+    <legend>Filtros trocados</legend>
+    <label class="checkbox"><input type="checkbox" name="filtro_oleo" value="1" {{ 'checked' if t.filtro_oleo }}> Filtro de óleo</label>
+    <label class="checkbox"><input type="checkbox" name="filtro_ar" value="1" {{ 'checked' if t.filtro_ar }}> Filtro de ar</label>
+    <label class="checkbox"><input type="checkbox" name="filtro_combustivel" value="1" {{ 'checked' if t.filtro_combustivel }}> Filtro de combustível</label>
+  </fieldset>
+
+  <label class="largo">Observações<textarea name="observacoes" rows="3">{{ t.observacoes or '' }}</textarea></label>
+
+  <div class="acoes">
+    <button type="submit">Registrar troca</button>
+    <a href="{{ url_for('trocas.lista') }}">Cancelar</a>
+  </div>
+</form>
+
+<script>
+  // Preenche unidade, leitura atual, óleo e capacidade sugeridos pelo cadastro do equipamento.
+  (function () {
+    const select = document.getElementById('equipamento');
+    function preencher(sobrescrever) {
+      const op = select.selectedOptions[0];
+      if (!op || !op.value) return;
+      document.getElementById('unidade').textContent = op.dataset.unidade === 'h' ? 'horas' : 'km';
+      const campos = { leitura: op.dataset.leitura, tipo_oleo: op.dataset.oleo, quantidade: op.dataset.capacidade };
+      for (const [id, valor] of Object.entries(campos)) {
+        const campo = document.getElementById(id);
+        if (valor && (sobrescrever || !campo.value)) campo.value = valor;
+      }
+    }
+    select.addEventListener('change', () => preencher(true));
+    preencher(false);
+  })();
+</script>
+{% endblock %}

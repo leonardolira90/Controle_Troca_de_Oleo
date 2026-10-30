@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ titulo }} – {{ super() }}{% endblock %}
+{% block conteudo %}
+<h1>{{ titulo }}</h1>
+<form method="post" class="formulario">
+  <fieldset>
+    <legend>Identificação</legend>
+    <div class="grade">
+      <label>Código / Frota *<input name="codigo" value="{{ eq.codigo or '' }}" required maxlength="30" placeholder="Ex.: CAM-001"></label>
+      <label>Tipo *
+        <select name="tipo" required>
+          {% for t in tipos %}<option {{ 'selected' if t == eq.tipo }}>{{ t }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="largo">Descrição *<input name="descricao" value="{{ eq.descricao or '' }}" required placeholder="Ex.: Caminhão basculante"></label>
+      <label>Marca<input name="marca" value="{{ eq.marca or '' }}"></label>
+      <label>Modelo<input name="modelo" value="{{ eq.modelo or '' }}"></label>
+      <label>Ano<input name="ano" type="number" min="1900" max="2100" value="{{ eq.ano or '' }}"></label>
+      <label>Placa / Nº de série<input name="placa_serie" value="{{ eq.placa_serie or '' }}"></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Plano de troca de óleo</legend>
+    <div class="grade">
+      <label>Unidade de medição *
+        <select name="unidade_medida" required>
+          {% for valor, rotulo in unidades.items() %}<option value="{{ valor }}" {{ 'selected' if valor == eq.unidade_medida }}>{{ rotulo }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Leitura atual (km / horas)<input name="leitura_atual" type="number" step="0.1" min="0" value="{{ eq.leitura_atual if eq.leitura_atual is not none else '' }}"></label>
+      <label>Intervalo de troca (km / horas) *<input name="intervalo_troca" type="number" step="0.1" min="1" value="{{ eq.intervalo_troca or '' }}" required placeholder="Ex.: 10000 km ou 250 h"></label>
+      <label>Intervalo máximo em dias<input name="intervalo_dias" type="number" min="1" value="{{ eq.intervalo_dias or '' }}" placeholder="Ex.: 180 (opcional)"></label>
+      <label>Óleo recomendado<input name="oleo_recomendado" value="{{ eq.oleo_recomendado or '' }}" placeholder="Ex.: 15W40 API CI-4"></label>
+      <label>Capacidade do cárter (litros)<input name="capacidade_litros" type="number" step="0.1" min="0" value="{{ eq.capacidade_litros or '' }}"></label>
+    </div>
+    <p class="dica">A troca vence pelo que ocorrer primeiro: o intervalo de km/horas ou o intervalo em dias (se informado).</p>
+  </fieldset>
+
+  <label class="largo">Observações<textarea name="observacoes" rows="3">{{ eq.observacoes or '' }}</textarea></label>
+  <label class="checkbox"><input type="checkbox" name="ativo" value="1" {{ 'checked' if eq.ativo }}> Equipamento ativo</label>
+
+  <div class="acoes">
+    <button type="submit">Salvar</button>
+    <a href="{{ url_for('equipamentos.detalhe', equipamento_id=eq.id) if eq.id else url_for('equipamentos.lista') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import selo, restante %}
+{% block titulo %}Equipamentos – {{ super() }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>Equipamentos</h1>
+  <a class="botao" href="{{ url_for('equipamentos.novo') }}">+ Novo equipamento</a>
+</div>
+
+<form class="filtros" method="get">
+  <input type="search" name="q" value="{{ busca }}" placeholder="Buscar por código, descrição, placa ou modelo">
+  <select name="tipo">
+    <option value="">Todos os tipos</option>
+    {% for t in tipos %}<option {{ 'selected' if t == tipo }}>{{ t }}</option>{% endfor %}
+  </select>
+  <button type="submit">Filtrar</button>
+</form>
+
+{% if itens %}
+<div class="tabela">
+<table>
+  <thead>
+    <tr><th>Código</th><th>Descrição</th><th>Tipo</th><th>Marca / Modelo</th><th>Placa / Série</th><th class="num">Leitura atual</th><th class="num">Intervalo</th><th>Situação</th><th>Falta</th></tr>
+  </thead>
+  <tbody>
+  {% for i in itens %}
+    {% set eq = i.equipamento %}
+    <tr class="{{ 'inativo' if not eq.ativo }}">
+      <td><a href="{{ url_for('equipamentos.detalhe', equipamento_id=eq.id) }}">{{ eq.codigo }}</a></td>
+      <td>{{ eq.descricao }}{% if not eq.ativo %} <small>(inativo)</small>{% endif %}</td>
+      <td>{{ eq.tipo }}</td>
+      <td>{{ eq.marca or '' }} {{ eq.modelo or '' }}</td>
+      <td>{{ eq.placa_serie or '—' }}</td>
+      <td class="num">{{ eq.leitura_atual|numero }} {{ eq.unidade_medida }}</td>
+      <td class="num">{{ eq.intervalo_troca|numero }} {{ eq.unidade_medida }}{% if eq.intervalo_dias %}<br><small>ou {{ eq.intervalo_dias }} dias</small>{% endif %}</td>
+      <td>{{ selo(i.status) }}</td>
+      <td>{{ restante(i, eq.unidade_medida) }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="vazio">Nenhum equipamento encontrado.</p>
+{% endif %}
+{% endblock %}

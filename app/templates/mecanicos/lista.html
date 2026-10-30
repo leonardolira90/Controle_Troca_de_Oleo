@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block titulo %}Mecânicos – {{ super() }}{% endblock %}
+{% block conteudo %}
+<div class="cabecalho">
+  <h1>Mecânicos</h1>
+  <a class="botao" href="{{ url_for('mecanicos.novo') }}">+ Novo mecânico</a>
+</div>
+{% if mecanicos %}
+<div class="tabela">
+<table>
+  <thead><tr><th>Nome</th><th>Matrícula</th><th>Telefone</th><th>Especialidade</th><th class="num">Trocas realizadas</th><th>Última troca</th><th>Situação</th><th></th></tr></thead>
+  <tbody>
+  {% for m in mecanicos %}
+    <tr class="{{ 'inativo' if not m.ativo }}">
+      <td>{{ m.nome }}</td>
+      <td>{{ m.matricula }}</td>
+      <td>{{ m.telefone or '—' }}</td>
+      <td>{{ m.especialidade or '—' }}</td>
+      <td class="num"><a href="{{ url_for('trocas.lista', mecanico_id=m.id) }}">{{ m.total_trocas }}</a></td>
+      <td>{{ m.ultima_troca|data_br }}</td>
+      <td>{{ 'Ativo' if m.ativo else 'Inativo' }}</td>
+      <td class="acoes">
+        <a href="{{ url_for('mecanicos.editar', mecanico_id=m.id) }}">Editar</a>
+        <form method="post" action="{{ url_for('mecanicos.excluir', mecanico_id=m.id) }}" onsubmit="return confirm('Excluir este mecânico?')">
+          <button class="botao-link" type="submit">Excluir</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="vazio">Nenhum mecânico cadastrado. <a href="{{ url_for('mecanicos.novo') }}">Cadastre o primeiro mecânico</a>.</p>
+{% endif %}
+{% endblock %}

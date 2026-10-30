@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ titulo }} – {{ super() }}{% endblock %}
+{% block conteudo %}
+<h1>{{ titulo }}</h1>
+<form method="post" class="formulario">
+  <div class="grade">
+    <label class="largo">Nome completo *<input name="nome" value="{{ mec.nome or '' }}" required></label>
+    <label>Matrícula *<input name="matricula" value="{{ mec.matricula or '' }}" required></label>
+    <label>Telefone<input name="telefone" type="tel" value="{{ mec.telefone or '' }}" placeholder="(00) 00000-0000"></label>
+    <label>Especialidade<input name="especialidade" value="{{ mec.especialidade or '' }}" placeholder="Ex.: Motores diesel"></label>
+  </div>
+  <label class="checkbox"><input type="checkbox" name="ativo" value="1" {{ 'checked' if mec.ativo }}> Mecânico ativo</label>
+  <div class="acoes">
+    <button type="submit">Salvar</button>
+    <a href="{{ url_for('mecanicos.lista') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
