@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block titulo %}Entrar – {{ super() }}{% endblock %}
+{% block conteudo %}
+<form method="post" class="formulario caixa-login"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <h1>Entrar</h1>
+  <label>Usuário<input name="login" autocomplete="username" required autofocus></label>
+  <label>Senha<input name="senha" type="password" autocomplete="current-password" required></label>
+  <button type="submit">Entrar</button>
+</form>
+{% endblock %}

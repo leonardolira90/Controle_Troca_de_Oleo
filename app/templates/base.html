@@ -9,6 +9,7 @@
 <body>
   <header class="topo">
     <a class="marca" href="{{ url_for('main.index') }}">🛢️ Controle de Troca de Óleo</a>
+    {% if g.usuario %}
     <nav>
       {% set ep = request.endpoint or '' %}
       <a href="{{ url_for('main.index') }}" class="{{ 'ativo' if ep.startswith('main.') }}">Painel</a>
@@ -16,7 +17,21 @@
       <a href="{{ url_for('mecanicos.lista') }}" class="{{ 'ativo' if ep.startswith('mecanicos.') }}">Mecânicos</a>
       <a href="{{ url_for('trocas.lista') }}" class="{{ 'ativo' if ep.startswith('trocas.') }}">Trocas</a>
       <a href="{{ url_for('trocas.nova') }}" class="botao">+ Registrar troca</a>
+      <details class="menu-usuario">
+        <summary>{{ g.usuario.nome }}</summary>
+        <div>
+          <a href="{{ url_for('auth.alterar_senha') }}">Alterar senha</a>
+          {% if g.usuario.admin %}
+            <a href="{{ url_for('auth.usuarios') }}">Usuários</a>
+            <a href="{{ url_for('main.backup') }}">Baixar backup</a>
+          {% endif %}
+          <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="botao-link">Sair</button>
+          </form>
+        </div>
+      </details>
     </nav>
+    {% endif %}
   </header>
   <main>
     {% with mensagens = get_flashed_messages(with_categories=true) %}

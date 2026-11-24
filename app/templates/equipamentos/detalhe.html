@@ -7,7 +7,7 @@
   <div class="acoes">
     <a class="botao" href="{{ url_for('trocas.nova', equipamento_id=eq.id) }}">Registrar troca</a>
     <a class="botao botao-secundario" href="{{ url_for('equipamentos.editar', equipamento_id=eq.id) }}">Editar</a>
-    <form method="post" action="{{ url_for('equipamentos.excluir', equipamento_id=eq.id) }}" onsubmit="return confirm('Excluir este equipamento?')">
+    <form method="post" action="{{ url_for('equipamentos.excluir', equipamento_id=eq.id) }}" onsubmit="return confirm('Excluir este equipamento?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button class="botao-perigo" type="submit">Excluir</button>
     </form>
   </div>
@@ -35,7 +35,7 @@
     {% if eq.observacoes %}<dt>Observações</dt><dd>{{ eq.observacoes }}</dd>{% endif %}
   </dl>
 
-  <form class="caixa" method="post" action="{{ url_for('equipamentos.atualizar_leitura', equipamento_id=eq.id) }}">
+  <form class="caixa" method="post" action="{{ url_for('equipamentos.atualizar_leitura', equipamento_id=eq.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <h3>Atualizar {{ 'quilometragem' if eq.unidade_medida == 'km' else 'horímetro' }}</h3>
     <p class="dica">Informe a leitura atual para acompanhar quanto falta para a próxima troca.</p>
     <input name="leitura_atual" type="number" step="0.1" min="{{ eq.leitura_atual }}" value="{{ eq.leitura_atual }}" required>
@@ -60,7 +60,7 @@
       <td class="num">{{ t.proxima_leitura|numero }} {{ eq.unidade_medida }}{% if t.proxima_data %}<br><small>{{ t.proxima_data|data_br }}</small>{% endif %}</td>
       <td>{{ t.observacoes or '' }}</td>
       <td>
-        <form method="post" action="{{ url_for('trocas.excluir', troca_id=t.id) }}" onsubmit="return confirm('Excluir este registro de troca?')">
+        <form method="post" action="{{ url_for('trocas.excluir', troca_id=t.id) }}" onsubmit="return confirm('Excluir este registro de troca?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="voltar" value="{{ url_for('equipamentos.detalhe', equipamento_id=eq.id) }}">
           <button class="botao-link" type="submit">Excluir</button>
         </form>

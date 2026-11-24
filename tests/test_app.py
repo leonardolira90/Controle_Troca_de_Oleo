@@ -9,12 +9,22 @@ from app.manutencao import EM_DIA, PROXIMA, SEM_REGISTRO, VENCIDA, situacao
 
 @pytest.fixture
 def app(tmp_path):
-    return create_app({"TESTING": True, "DATABASE": str(tmp_path / "teste.sqlite")})
+    return create_app({
+        "TESTING": True, "CSRF": False, "DATABASE": str(tmp_path / "teste.sqlite"),
+        "ADMIN_LOGIN": "admin", "ADMIN_SENHA": "senha-segura",
+    })
+
+
+@pytest.fixture
+def anonimo(app):
+    return app.test_client()
 
 
 @pytest.fixture
 def client(app):
-    return app.test_client()
+    cliente = app.test_client()
+    cliente.post("/login", data={"login": "admin", "senha": "senha-segura"})
+    return cliente
 
 
 def cadastrar_equipamento(client, **extra):

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block titulo %}Usuários – {{ super() }}{% endblock %}
+{% block conteudo %}
+<h1>Usuários do sistema</h1>
+
+<div class="tabela">
+<table>
+  <thead><tr><th>Nome</th><th>Usuário</th><th>Perfil</th><th>Situação</th><th>Redefinir senha</th><th></th></tr></thead>
+  <tbody>
+  {% for u in usuarios %}
+    <tr class="{{ 'inativo' if not u.ativo }}">
+      <td>{{ u.nome }}</td>
+      <td>{{ u.login }}</td>
+      <td>{{ 'Administrador' if u.admin else 'Usuário' }}</td>
+      <td>{{ 'Ativo' if u.ativo else 'Inativo' }}</td>
+      <td>
+        <form class="linha" method="post" action="{{ url_for('auth.redefinir_senha', usuario_id=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input name="senha" type="password" placeholder="Nova senha" minlength="8" autocomplete="new-password" required>
+          <input name="confirmacao" type="password" placeholder="Confirmação" minlength="8" autocomplete="new-password" required>
+          <button class="botao-pequeno" type="submit">Salvar</button>
+        </form>
+      </td>
+      <td>
+        {% if u.id != g.usuario.id %}
+        <form method="post" action="{{ url_for('auth.alternar_ativo', usuario_id=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="botao-link" type="submit">{{ 'Desativar' if u.ativo else 'Reativar' }}</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2>Novo usuário</h2>
+<form method="post" class="formulario"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="grade">
+    <label>Nome *<input name="nome" value="{{ u.nome or '' }}" required></label>
+    <label>Usuário (login) *<input name="login" value="{{ u.login or '' }}" autocomplete="off" required></label>
+    <label>Senha *<input name="senha" type="password" minlength="8" autocomplete="new-password" required></label>
+    <label>Confirme a senha *<input name="confirmacao" type="password" minlength="8" autocomplete="new-password" required></label>
+  </div>
+  <label class="checkbox"><input type="checkbox" name="admin" value="1" {{ 'checked' if u.admin }}> Administrador (pode gerenciar usuários e baixar backup)</label>
+  <div class="acoes"><button type="submit">Criar usuário</button></div>
+</form>
+{% endblock %}

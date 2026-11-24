@@ -2,7 +2,7 @@
 {% block titulo %}{{ titulo }} – {{ super() }}{% endblock %}
 {% block conteudo %}
 <h1>{{ titulo }}</h1>
-<form method="post" class="formulario">
+<form method="post" class="formulario"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <fieldset>
     <legend>Identificação</legend>
     <div class="grade">

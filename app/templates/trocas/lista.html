@@ -40,7 +40,7 @@
       <td>{{ t.mecanico }}</td>
       <td class="num">{{ t.proxima_leitura|numero }} {{ t.unidade_medida }}{% if t.proxima_data %}<br><small>{{ t.proxima_data|data_br }}</small>{% endif %}</td>
       <td>
-        <form method="post" action="{{ url_for('trocas.excluir', troca_id=t.id) }}" onsubmit="return confirm('Excluir este registro de troca?')">
+        <form method="post" action="{{ url_for('trocas.excluir', troca_id=t.id) }}" onsubmit="return confirm('Excluir este registro de troca?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="botao-link" type="submit">Excluir</button>
         </form>
       </td>

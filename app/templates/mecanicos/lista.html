@@ -21,7 +21,7 @@
       <td>{{ 'Ativo' if m.ativo else 'Inativo' }}</td>
       <td class="acoes">
         <a href="{{ url_for('mecanicos.editar', mecanico_id=m.id) }}">Editar</a>
-        <form method="post" action="{{ url_for('mecanicos.excluir', mecanico_id=m.id) }}" onsubmit="return confirm('Excluir este mecânico?')">
+        <form method="post" action="{{ url_for('mecanicos.excluir', mecanico_id=m.id) }}" onsubmit="return confirm('Excluir este mecânico?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="botao-link" type="submit">Excluir</button>
         </form>
       </td>

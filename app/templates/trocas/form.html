@@ -13,7 +13,7 @@
   </div>
 {% endif %}
 
-<form method="post" class="formulario">
+<form method="post" class="formulario"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="grade">
     <label class="largo">Equipamento *
       <select name="equipamento_id" id="equipamento" required>

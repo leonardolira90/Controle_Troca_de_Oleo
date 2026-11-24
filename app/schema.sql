@@ -47,3 +47,13 @@ CREATE TABLE IF NOT EXISTS trocas (
 
 CREATE INDEX IF NOT EXISTS idx_trocas_equipamento ON trocas (equipamento_id, data);
 CREATE INDEX IF NOT EXISTS idx_trocas_mecanico ON trocas (mecanico_id);
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    login TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    senha_hash TEXT NOT NULL,
+    admin INTEGER NOT NULL DEFAULT 0,
+    ativo INTEGER NOT NULL DEFAULT 1,
+    criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
